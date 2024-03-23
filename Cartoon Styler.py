@@ -1,12 +1,18 @@
 import cv2 as cv
 import numpy as np
+import os
 
-video_file = 'korea.mp4'
+video_file = 'traffic.mp4'
+video_name = os.path.splitext(video_file)[0]
 video = cv.VideoCapture(video_file)
 
+fourcc = cv.VideoWriter_fourcc(*'XVID')
+frame_rate = video.get(cv.CAP_PROP_FPS)
+video_writer = cv.VideoWriter(f'cartoon_{video_name}.avi', fourcc, frame_rate, (480, 270))
+
 while video.isOpened():
-    vaild, frame = video.read()
-    if not vaild:
+    valid, frame = video.read()
+    if not valid:
         print('Unable to read video')
         break
 
@@ -22,8 +28,9 @@ while video.isOpened():
     frame = cv.resize(frame, (480, 270))
     cartoon = cv.resize(cartoon, (480, 270))
 
-    merge = np.hstack((frame, cartoon))
+    merge = np.vstack((frame, cartoon))
     cv.imshow('Cartoon Styler: Original | Result', merge)
+    video_writer.write(cartoon)
 
     key = cv.waitKey(1) & 0xFF
     if key == 27:
